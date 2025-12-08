@@ -154,8 +154,8 @@ public class ChunkDataManager extends PersistentState {
 			}
 		}
 
-		for (var chunkKey : keysToRemove) {
-			chunkDataMap.remove(chunkKey);
+		for (var i = 0; i < keysToRemove.size(); i++) {
+			chunkDataMap.remove(keysToRemove.getLong(i));
 			hasChanged = true;
 		}
 
@@ -181,8 +181,8 @@ public class ChunkDataManager extends PersistentState {
 			return;
 		}
 
-		for (var chunkKey : keysToRemove) {
-			chunkDataMap.remove(chunkKey);
+		for (var i = 0; i < keysToRemove.size(); i++) {
+			chunkDataMap.remove(keysToRemove.getLong(i));
 		}
 
 		markDirty();
