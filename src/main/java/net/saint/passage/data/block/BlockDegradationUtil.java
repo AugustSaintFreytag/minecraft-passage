@@ -37,7 +37,7 @@ public final class BlockDegradationUtil {
 			return;
 		}
 
-		var numberOfSteps = Mod.CHUNK_DATA_MANAGER.incrementNumberOfSteps(position);
+		var numberOfSteps = Mod.CHUNK_DATA_MANAGER.incrementNumberOfSteps(position, world.getTime());
 		var requiredNumberOfSteps = getRequiredNumberOfSteps(blockId);
 
 		if (Mod.CONFIG.enableLogging) {

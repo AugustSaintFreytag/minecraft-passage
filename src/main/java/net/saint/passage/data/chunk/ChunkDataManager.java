@@ -1,14 +1,14 @@
 package net.saint.passage.data.chunk;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.PersistentState;
+import net.saint.passage.Mod;
 
 public class ChunkDataManager extends PersistentState {
 
@@ -20,7 +20,7 @@ public class ChunkDataManager extends PersistentState {
 
 	// Properties
 
-	private final Map<ChunkPos, ChunkData> chunkDataMap = new HashMap<>();
+	private final Long2ObjectOpenHashMap<ChunkData> chunkDataMap = new Long2ObjectOpenHashMap<>();
 
 	// NBT
 
@@ -37,7 +37,7 @@ public class ChunkDataManager extends PersistentState {
 			var chunkPos = new ChunkPos(chunkPosX, chunkPosZ);
 			var chunkData = ChunkData.fromNbt(chunkDataNbt);
 
-			manager.chunkDataMap.put(chunkPos, chunkData);
+			manager.chunkDataMap.put(chunkPos.toLong(), chunkData);
 		}
 
 		return manager;
@@ -47,8 +47,8 @@ public class ChunkDataManager extends PersistentState {
 	public NbtCompound writeNbt(NbtCompound nbt) {
 		var nbtList = new NbtList();
 
-		for (var entry : chunkDataMap.entrySet()) {
-			var chunkPos = entry.getKey();
+		for (var entry : chunkDataMap.long2ObjectEntrySet()) {
+			var chunkPos = new ChunkPos(entry.getLongKey());
 			var chunkData = entry.getValue();
 
 			if (!chunkData.hasTrackedBlocks()) {
@@ -74,7 +74,7 @@ public class ChunkDataManager extends PersistentState {
 	}
 
 	public ChunkData getChunkData(ChunkPos chunkPos) {
-		return chunkDataMap.get(chunkPos);
+		return chunkDataMap.get(chunkPos.toLong());
 	}
 
 	public int getNumberOfSteps(BlockPos blockPos) {
@@ -87,9 +87,9 @@ public class ChunkDataManager extends PersistentState {
 		return chunkData.getNumberOfSteps(blockPos);
 	}
 
-	public int incrementNumberOfSteps(BlockPos blockPos) {
+	public int incrementNumberOfSteps(BlockPos blockPos, long currentTick) {
 		var chunkData = getOrCreateChunkData(new ChunkPos(blockPos));
-		var numberOfSteps = chunkData.incrementNumberOfSteps(blockPos);
+		var numberOfSteps = chunkData.incrementNumberOfSteps(blockPos, currentTick);
 
 		markDirty();
 
@@ -107,18 +107,95 @@ public class ChunkDataManager extends PersistentState {
 		chunkData.resetNumberOfSteps(blockPos);
 
 		if (!chunkData.hasTrackedBlocks()) {
-			chunkDataMap.remove(chunkPos);
+			chunkDataMap.remove(chunkPos.toLong());
+		}
+
+		markDirty();
+	}
+
+	public void decayIfScheduled(long currentTick) {
+		var decayInterval = Mod.CONFIG.chunkStepDecay;
+
+		if (decayInterval <= 0) {
+			return;
+		}
+
+		var decayFactor = Mod.CONFIG.chunkStepDecayFactor;
+		var keysToRemove = new LongArrayList();
+		var hasChanged = false;
+
+		for (var entry : chunkDataMap.long2ObjectEntrySet()) {
+			var chunkKey = entry.getLongKey();
+			var chunkData = entry.getValue();
+
+			if (!chunkData.hasTrackedBlocks()) {
+				keysToRemove.add(chunkKey);
+				continue;
+			}
+
+			var lastStepTick = chunkData.getLastStepTick();
+
+			if (lastStepTick == 0) {
+				continue;
+			}
+
+			var elapsedTicks = currentTick - lastStepTick;
+
+			if (elapsedTicks < decayInterval) {
+				continue;
+			}
+
+			chunkData.setLastStepTick(currentTick);
+			var didDecay = chunkData.applyDecay(decayFactor);
+			hasChanged = true;
+
+			if (!chunkData.hasTrackedBlocks()) {
+				keysToRemove.add(chunkKey);
+			}
+		}
+
+		for (var chunkKey : keysToRemove) {
+			chunkDataMap.remove(chunkKey);
+			hasChanged = true;
+		}
+
+		if (hasChanged) {
+			markDirty();
+		}
+	}
+
+	public void trim() {
+		if (chunkDataMap.isEmpty()) {
+			return;
+		}
+
+		var keysToRemove = new LongArrayList();
+
+		for (var entry : chunkDataMap.long2ObjectEntrySet()) {
+			if (!entry.getValue().hasTrackedBlocks()) {
+				keysToRemove.add(entry.getLongKey());
+			}
+		}
+
+		if (keysToRemove.isEmpty()) {
+			return;
+		}
+
+		for (var chunkKey : keysToRemove) {
+			chunkDataMap.remove(chunkKey);
 		}
 
 		markDirty();
 	}
 
 	private ChunkData getOrCreateChunkData(ChunkPos chunkPos) {
-		if (!chunkDataMap.containsKey(chunkPos)) {
-			chunkDataMap.put(chunkPos, new ChunkData());
+		var chunkPosLong = chunkPos.toLong();
+
+		if (!chunkDataMap.containsKey(chunkPosLong)) {
+			chunkDataMap.put(chunkPosLong, new ChunkData());
 		}
 
-		return chunkDataMap.get(chunkPos);
+		return chunkDataMap.get(chunkPosLong);
 	}
 
 }
