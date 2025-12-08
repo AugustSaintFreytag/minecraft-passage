@@ -24,7 +24,7 @@ public abstract class BlockMixin {
 			return;
 		}
 
-		BlockDegradationUtil.handleBlockStep(world, pos, state);
+		BlockDegradationUtil.handleBlockStep(world, pos, state, entity);
 	}
 
 	@Inject(method = { "onPlaced" }, at = { @At("HEAD") })

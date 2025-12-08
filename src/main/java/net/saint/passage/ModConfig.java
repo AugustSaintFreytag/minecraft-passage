@@ -13,6 +13,18 @@ public class ModConfig implements ConfigData {
 	@Comment("Enable block degradation for well-treaded paths in the world. (Default: true)")
 	public boolean degradeBlocks = true;
 
+	@Comment("Allow player entities to degrade blocks through natural movement. (Default: true)")
+	public boolean degradeBlocksForPlayers = true;
+
+	@Comment("Allow non-player entities to degrade blocks through natural movement. (Default: false)")
+	public boolean degradeBlocksForNonPlayerEntities = false;
+
+	@Comment("When enabled, non-player entities can only degrade a block by one stage (e.g., grass -> dirt). (Default: true)")
+	public boolean limitNonPlayerEntityDegradation = true;
+
+	@Comment("Ticks before a stationary entity can contribute another step on the same block. Set to 0 to disable pacing. (Default: 1200)")
+	public long stationaryStepCooldown = 1200L;
+
 	@Comment("The rough number of steps required to degrade a block into its next stage. (Default: 10)")
 	public int blockResilience = 10;
 
