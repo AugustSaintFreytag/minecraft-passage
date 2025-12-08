@@ -45,7 +45,10 @@ public class Mod implements ModInitializer {
 					MOD_ID + "_chunk_data");
 			profile.end();
 
-			Mod.LOGGER.info("Loaded {} chunks of block step data in {}.", CHUNK_DATA_MANAGER.getNumberOfChunks(), profile.getDescription());
+			if (Mod.CONFIG.enableLogging) {
+				Mod.LOGGER.info("Loaded {} chunks of block step data in {}.", CHUNK_DATA_MANAGER.getNumberOfChunks(),
+						profile.getDescription());
+			}
 		});
 	}
 }

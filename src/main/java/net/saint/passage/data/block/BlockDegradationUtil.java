@@ -40,6 +40,11 @@ public final class BlockDegradationUtil {
 		var numberOfSteps = Mod.CHUNK_DATA_MANAGER.incrementNumberOfSteps(position);
 		var requiredNumberOfSteps = getRequiredNumberOfSteps(blockId);
 
+		if (Mod.CONFIG.enableLogging) {
+			Mod.LOGGER.info("Block '{}' at {} has been stepped on {} time(s) (required to degradation: ~{}).",
+					blockId.toShortTranslationKey(), position, numberOfSteps, requiredNumberOfSteps);
+		}
+
 		if (numberOfSteps < requiredNumberOfSteps) {
 			return;
 		}
