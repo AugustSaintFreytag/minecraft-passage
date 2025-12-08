@@ -1,0 +1,11 @@
+{
+	"text.autoconfig.passage.title": "Passage",
+	"text.autoconfig.passage.option.degradeBlocks": "Enable Block Degradation",
+	"text.autoconfig.passage.option.degradeBlocks.tooltip": "When enabled, certain blocks will degrade into other blocks when stepped on.",
+	"text.autoconfig.passage.option.blockResilience": "Block Resilience",
+	"text.autoconfig.passage.option.blockResilience.tooltip": "The rough number of steps required to degrade a block into its next stage.",
+	"text.autoconfig.passage.option.blockResilienceJitter": "Block Resilience Jitter",
+	"text.autoconfig.passage.option.blockResilienceJitter.tooltip": "The chance for a block that would have degraded to resist degradation instead.",
+	"text.autoconfig.passage.option.blockResilienceScalingFactor": "Block Resilience Scaling Factor",
+	"text.autoconfig.passage.option.blockResilienceScalingFactor.tooltip": "The factor for increased resilience of subsequent stages of degradation."
+}
