@@ -47,10 +47,6 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
-
-	// Thoroughfabric
-
-	modCompileOnly("maven.modrinth:thoroughfabric:${project.thoroughfabric_version}")
 	
 }
 
