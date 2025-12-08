@@ -4,13 +4,11 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -23,17 +21,17 @@ public final class BlockDegradationUtil {
 	// State
 
 	private static final Map<Identifier, Integer> degradationStageByBlockId = buildDegradationStageByBlockId();
-	private static final Map<UUID, EntityStepState> entityStepStateById = new HashMap<>();
 
-	// Public
+	// Access
+
+	private static int getDegradationStage(Identifier blockId) {
+		return degradationStageByBlockId.getOrDefault(blockId, 0);
+	}
+
+	// Step
 
 	public static void handleBlockStep(World world, BlockPos position, BlockState blockState, Entity entity) {
 		if (!shouldHandleSteps()) {
-			return;
-		}
-
-		if (!isEntityEnabledForDegradation(entity)) {
-			clearEntityTracking(entity);
 			return;
 		}
 
@@ -43,13 +41,13 @@ public final class BlockDegradationUtil {
 			return;
 		}
 
-		if (isBlockAtMaxDegradationForEntity(entity, blockId)) {
+		var currentTick = world.getTime();
+
+		if (!Mod.ENTITY_STEP_MANAGER.shouldCountStepForEntity(world, position, entity, currentTick)) {
 			return;
 		}
 
-		var currentTick = world.getTime();
-
-		if (isStationaryOnCooldown(entity, world, position, currentTick)) {
+		if (isBlockAtMaxDegradationForEntity(entity, blockId)) {
 			return;
 		}
 
@@ -77,27 +75,14 @@ public final class BlockDegradationUtil {
 		Mod.CHUNK_DATA_MANAGER.resetNumberOfSteps(position);
 	}
 
-	// Helpers
+	// State
 
-	private static boolean shouldHandleSteps() {
+	public static boolean shouldHandleSteps() {
 		if (!Mod.CONFIG.degradeBlocks) {
-			entityStepStateById.clear();
 			return false;
 		}
 
 		return Mod.CHUNK_DATA_MANAGER != null;
-	}
-
-	private static boolean isEntityEnabledForDegradation(Entity entity) {
-		if (entity instanceof PlayerEntity) {
-			return Mod.CONFIG.degradeBlocksForPlayers;
-		}
-
-		return Mod.CONFIG.degradeBlocksForNonPlayerEntities;
-	}
-
-	private static void clearEntityTracking(Entity entity) {
-		entityStepStateById.remove(entity.getUuid());
 	}
 
 	private static boolean isBlockAtMaxDegradationForEntity(Entity entity, Identifier blockId) {
@@ -112,42 +97,18 @@ public final class BlockDegradationUtil {
 		return getDegradationStage(blockId) >= 1;
 	}
 
-	private static boolean isStationaryOnCooldown(Entity entity, World world, BlockPos position, long currentTick) {
-		var cooldown = Mod.CONFIG.stationaryStepCooldown;
+	private static boolean tryDegradeBlock(World world, BlockPos position, Identifier blockId) {
+		var random = world.getRandom();
+		var degradedBlockId = BlockStepConfig.getRandomDegradableBlockForBlockId(random, blockId);
 
-		if (cooldown <= 0) {
-			clearEntityTracking(entity);
+		if (degradedBlockId == null) {
 			return false;
 		}
 
-		var uuid = entity.getUuid();
-		var worldKey = world.getRegistryKey();
-		var state = entityStepStateById.get(uuid);
+		var degradedBlock = Registries.BLOCK.get(degradedBlockId);
+		world.setBlockState(position, degradedBlock.getDefaultState());
 
-		if (state == null || !state.isSameLocation(worldKey, position)) {
-			updateEntityStepState(uuid, worldKey, position, currentTick);
-			return false;
-		}
-
-		if (currentTick - state.lastStepTick < cooldown) {
-			return true;
-		}
-
-		updateEntityStepState(uuid, worldKey, position, currentTick);
-		return false;
-	}
-
-	private static void updateEntityStepState(UUID uuid, RegistryKey<World> worldKey, BlockPos position, long tick) {
-		entityStepStateById.put(uuid, new EntityStepState(worldKey, position.asLong(), tick));
-	}
-
-	private static void logStep(Identifier blockId, BlockPos position, int numberOfSteps, int requiredNumberOfSteps) {
-		if (!Mod.CONFIG.enableLogging) {
-			return;
-		}
-
-		Mod.LOGGER.info("Block '{}' at {} has been stepped on {} time(s) (required to degradation: ~{}).", blockId.toShortTranslationKey(),
-				position, numberOfSteps, requiredNumberOfSteps);
+		return true;
 	}
 
 	private static int getRequiredNumberOfSteps(Identifier blockId) {
@@ -167,22 +128,7 @@ public final class BlockDegradationUtil {
 		return random.nextDouble() < Mod.CONFIG.blockResilienceJitter;
 	}
 
-	private static boolean tryDegradeBlock(World world, BlockPos position, Identifier blockId) {
-		var random = world.getRandom();
-		var degradedBlockId = BlockStepConfig.getRandomDegradableBlockForBlockId(random, blockId);
-
-		if (degradedBlockId == null) {
-			return false;
-		}
-
-		var degradedBlock = Registries.BLOCK.get(degradedBlockId);
-		world.setBlockState(position, degradedBlock.getDefaultState());
-		return true;
-	}
-
-	private static int getDegradationStage(Identifier blockId) {
-		return degradationStageByBlockId.getOrDefault(blockId, 0);
-	}
+	// Prebuilding
 
 	private static Map<Identifier, Integer> buildDegradationStageByBlockId() {
 		var stageByBlockId = new HashMap<Identifier, Integer>();
@@ -235,9 +181,15 @@ public final class BlockDegradationUtil {
 		return stageByBlockId;
 	}
 
-	private record EntityStepState(RegistryKey<World> worldKey, long blockPosLong, long lastStepTick) {
-		private boolean isSameLocation(RegistryKey<World> otherWorld, BlockPos position) {
-			return worldKey.equals(otherWorld) && blockPosLong == position.asLong();
+	// Logging
+
+	private static void logStep(Identifier blockId, BlockPos position, int numberOfSteps, int requiredNumberOfSteps) {
+		if (!Mod.CONFIG.enableLogging) {
+			return;
 		}
+
+		Mod.LOGGER.info("Block '{}' at {} has been stepped on {} time(s) (required to degradation: ~{}).", blockId.toShortTranslationKey(),
+				position, numberOfSteps, requiredNumberOfSteps);
 	}
+
 }
