@@ -69,6 +69,10 @@ public class ChunkDataManager extends PersistentState {
 
 	// Access
 
+	public int getNumberOfChunks() {
+		return chunkDataMap.size();
+	}
+
 	public ChunkData getChunkData(ChunkPos chunkPos) {
 		return chunkDataMap.get(chunkPos);
 	}

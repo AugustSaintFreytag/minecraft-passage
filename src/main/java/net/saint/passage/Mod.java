@@ -8,6 +8,7 @@ import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.saint.passage.data.chunk.ChunkDataManager;
+import net.saint.passage.util.Profiler;
 
 public class Mod implements ModInitializer {
 
@@ -18,6 +19,7 @@ public class Mod implements ModInitializer {
 	// References
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final Profiler PROFILER = Profiler.getProfiler(MOD_ID);
 
 	public static ModConfig CONFIG;
 
@@ -28,16 +30,22 @@ public class Mod implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		// Config
+
 		AutoConfig.register(ModConfig.class, JanksonConfigSerializer::new);
 		CONFIG = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
 		// Init
+
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			var world = server.getOverworld();
 			var persistentStateManager = world.getPersistentStateManager();
 
+			var profile = Mod.PROFILER.begin("PersistentStateLoad");
 			CHUNK_DATA_MANAGER = persistentStateManager.getOrCreate(ChunkDataManager::fromNbt, () -> new ChunkDataManager(),
 					MOD_ID + "_chunk_data");
+			profile.end();
+
+			Mod.LOGGER.info("Loaded {} chunks of block step data in {}.", CHUNK_DATA_MANAGER.getNumberOfChunks(), profile.getDescription());
 		});
 	}
 }
