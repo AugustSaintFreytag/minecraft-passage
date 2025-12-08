@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "net.saint.passage.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"plugin": "net.saint.passage.ModMixinPlugin",
+	"mixins": [
+	],
+	"client": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
