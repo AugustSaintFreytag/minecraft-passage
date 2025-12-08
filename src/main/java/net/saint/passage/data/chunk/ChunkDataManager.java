@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.PersistentState;
 
@@ -24,7 +26,7 @@ public class ChunkDataManager extends PersistentState {
 
 	public static ChunkDataManager fromNbt(NbtCompound nbt) {
 		var manager = new ChunkDataManager();
-		var nbtList = nbt.getList(CHUNK_DATA_MAP_NBT_KEY, 10);
+		var nbtList = nbt.getList(CHUNK_DATA_MAP_NBT_KEY, NbtElement.COMPOUND_TYPE);
 
 		for (int i = 0; i < nbtList.size(); i++) {
 			var chunkNbt = nbtList.getCompound(i);
@@ -49,6 +51,10 @@ public class ChunkDataManager extends PersistentState {
 			var chunkPos = entry.getKey();
 			var chunkData = entry.getValue();
 
+			if (!chunkData.hasTrackedBlocks()) {
+				continue;
+			}
+
 			var chunkNbt = new NbtCompound();
 			chunkNbt.putInt(CHUNK_POS_X_NBT_KEY, chunkPos.x);
 			chunkNbt.putInt(CHUNK_POS_Z_NBT_KEY, chunkPos.z);
@@ -67,29 +73,48 @@ public class ChunkDataManager extends PersistentState {
 		return chunkDataMap.get(chunkPos);
 	}
 
-	public int getNumberOfSteps(ChunkPos chunkPos) {
-		var chunkData = getChunkData(chunkPos);
+	public int getNumberOfSteps(BlockPos blockPos) {
+		var chunkData = getChunkData(new ChunkPos(blockPos));
 
 		if (chunkData == null) {
 			return 0;
 		}
 
-		return chunkData.numberOfSteps;
+		return chunkData.getNumberOfSteps(blockPos);
 	}
 
-	public void addNumberOfSteps(ChunkPos pos, int numberOfSteps) {
-		if (!chunkDataMap.containsKey(pos)) {
-			chunkDataMap.put(pos, new ChunkData());
+	public int incrementNumberOfSteps(BlockPos blockPos) {
+		var chunkData = getOrCreateChunkData(new ChunkPos(blockPos));
+		var numberOfSteps = chunkData.incrementNumberOfSteps(blockPos);
+
+		markDirty();
+
+		return numberOfSteps;
+	}
+
+	public void resetNumberOfSteps(BlockPos blockPos) {
+		var chunkPos = new ChunkPos(blockPos);
+		var chunkData = getChunkData(chunkPos);
+
+		if (chunkData == null) {
+			return;
 		}
 
-		var chunkData = chunkDataMap.get(pos);
-		chunkData.numberOfSteps += numberOfSteps;
+		chunkData.resetNumberOfSteps(blockPos);
+
+		if (!chunkData.hasTrackedBlocks()) {
+			chunkDataMap.remove(chunkPos);
+		}
 
 		markDirty();
 	}
 
-	public void incrementNumberOfSteps(ChunkPos pos) {
-		addNumberOfSteps(pos, 1);
+	private ChunkData getOrCreateChunkData(ChunkPos chunkPos) {
+		if (!chunkDataMap.containsKey(chunkPos)) {
+			chunkDataMap.put(chunkPos, new ChunkData());
+		}
+
+		return chunkDataMap.get(chunkPos);
 	}
 
 }
