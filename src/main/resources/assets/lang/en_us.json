@@ -7,5 +7,12 @@
 	"text.autoconfig.passage.option.blockResilienceJitter": "Block Resilience Jitter",
 	"text.autoconfig.passage.option.blockResilienceJitter.tooltip": "The chance for a block that would have degraded to resist degradation instead.",
 	"text.autoconfig.passage.option.blockResilienceScalingFactor": "Block Resilience Scaling Factor",
-	"text.autoconfig.passage.option.blockResilienceScalingFactor.tooltip": "The factor for increased resilience of subsequent stages of degradation."
+	"text.autoconfig.passage.option.blockResilienceScalingFactor.tooltip": "The factor for increased resilience of subsequent stages of degradation.",
+	"text.autoconfig.passage.option.chunkStepDecay": "Chunk Step Decay Interval",
+	"text.autoconfig.passage.option.chunkStepDecay.tooltip": "The time in ticks after which step counts in a chunk will decay.",
+	"text.autoconfig.passage.option.chunkStepDecayFactor": "Chunk Step Decay Factor",
+	"text.autoconfig.passage.option.chunkStepDecayFactor.tooltip": "The factor by which step counts in a chunk will be removed each decay interval.",
+	"text.autoconfig.passage.option.enableLogging": "Enable Logging",
+	"text.autoconfig.passage.option.enableLogging.tooltip": "Enable logging of data handling, stepping and block degradation events."
+
 }

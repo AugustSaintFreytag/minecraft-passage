@@ -22,4 +22,13 @@ public class ModConfig implements ConfigData {
 	@Comment("The factor for increased resilience of subsequent stages of degradation. (Default: 4)")
 	public double blockResilienceScalingFactor = 2.5;
 
+	@Comment("The time in ticks after which step counts in a chunk will decay. (Default: 168000 / 7 days)")
+	public long chunkStepDecay = 168_000L;
+
+	@Comment("The factor by which step counts in a chunk will be removed each decay interval. (Default: 0.25)")
+	public double chunkStepDecayFactor = 0.25;
+
+	@Comment("Enable logging of data handling, stepping and block degradation events. (Default: false)")
+	public boolean enableLogging = false;
+
 }
