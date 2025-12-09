@@ -25,10 +25,10 @@ public final class BlockDegradationConfig {
 
 	public static final Map<Identifier, Integer> blockWeightById = new HashMap<>() {
 		{
-			put(new Identifier("minecraft", "dirt"), 100);
-			put(new Identifier("minecraft", "coarse_dirt"), 60);
-			put(new Identifier("minecraft", "rooted_dirt"), 10);
-			put(new Identifier("minecraft", "podzol"), 5);
+			put(new Identifier("minecraft", "dirt"), 150);
+			put(new Identifier("minecraft", "coarse_dirt"), 40);
+			put(new Identifier("minecraft", "rooted_dirt"), 8);
+			put(new Identifier("minecraft", "podzol"), 4);
 			put(new Identifier("minecraft", "dirt_path"), 50);
 		}
 	};
@@ -39,8 +39,8 @@ public final class BlockDegradationConfig {
 					new BlockDegradationStep(BlockIds.GRASS_BLOCK, Set.of(BlockIds.DIRT, BlockIds.COARSE_DIRT, BlockIds.ROOTED_DIRT)));
 			put(BlockIds.DIRT,
 					new BlockDegradationStep(BlockIds.DIRT, Set.of(BlockIds.COARSE_DIRT, BlockIds.ROOTED_DIRT, BlockIds.PODZOL)));
-			put(BlockIds.COARSE_DIRT, new BlockDegradationStep(BlockIds.COARSE_DIRT, Set.of(BlockIds.PODZOL, BlockIds.DIRT_PATH)));
-			put(BlockIds.ROOTED_DIRT, new BlockDegradationStep(BlockIds.ROOTED_DIRT, Set.of(BlockIds.PODZOL, BlockIds.DIRT_PATH)));
+			put(BlockIds.COARSE_DIRT, new BlockDegradationStep(BlockIds.COARSE_DIRT, Set.of(BlockIds.DIRT_PATH)));
+			put(BlockIds.ROOTED_DIRT, new BlockDegradationStep(BlockIds.ROOTED_DIRT, Set.of(BlockIds.DIRT_PATH)));
 		}
 	};
 
