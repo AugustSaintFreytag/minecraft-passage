@@ -1,8 +1,5 @@
 package net.saint.passage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
@@ -13,16 +10,18 @@ import net.saint.passage.data.block.EntityStepManager;
 import net.saint.passage.data.block.EntityWeightClassManager;
 import net.saint.passage.data.chunk.ChunkDataManager;
 import net.saint.passage.util.Profiler;
+import net.saint.passage.util.Logger;
 
 public class Mod implements ModInitializer {
 
 	// Configuration
 
 	public static final String MOD_ID = "passage";
+	public static final String MOD_NAME = "Passage";
 
 	// References
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final Logger LOGGER = Logger.create(MOD_NAME);
 	public static final Profiler PROFILER = Profiler.getProfiler(MOD_ID);
 
 	public static ModConfig CONFIG;
