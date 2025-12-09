@@ -54,9 +54,7 @@ public final class BlockDegradationUtil {
 
 		var numberOfAddedSteps = numberOfStepsForEntity(entity);
 		var totalNumberOfSteps = Mod.CHUNK_DATA_MANAGER.addNumberOfSteps(position, numberOfAddedSteps, currentTick);
-		var requiredNumberOfSteps = getRequiredNumberOfSteps(blockId);
-
-		logStep(blockId, position, totalNumberOfSteps, requiredNumberOfSteps);
+		var requiredNumberOfSteps = getRequiredNumberOfStepsForDegradation(blockId);
 
 		if (totalNumberOfSteps < requiredNumberOfSteps) {
 			return;
@@ -77,7 +75,7 @@ public final class BlockDegradationUtil {
 		Mod.CHUNK_DATA_MANAGER.resetNumberOfSteps(position);
 	}
 
-	// State
+	// Gating
 
 	public static boolean shouldHandleSteps() {
 		if (!Mod.CONFIG.degradeBlocks) {
@@ -86,6 +84,24 @@ public final class BlockDegradationUtil {
 
 		return Mod.CHUNK_DATA_MANAGER != null;
 	}
+
+	// Degradation
+
+	private static boolean tryDegradeBlock(World world, BlockPos position, Identifier blockId) {
+		var random = world.getRandom();
+		var degradedBlockId = BlockStepConfig.getRandomDegradableBlockForBlockId(random, blockId);
+
+		if (degradedBlockId == null) {
+			return false;
+		}
+
+		var degradedBlock = Registries.BLOCK.get(degradedBlockId);
+		world.setBlockState(position, degradedBlock.getDefaultState());
+
+		return true;
+	}
+
+	// Analysis (Entity)
 
 	public static int numberOfStepsForEntity(Entity entity) {
 		if (entity.isPlayer()) {
@@ -124,6 +140,8 @@ public final class BlockDegradationUtil {
 		return false;
 	}
 
+	// Analysis (Block)
+
 	private static boolean isBlockAtMaxDegradationForEntity(Entity entity, Identifier blockId) {
 		if (!Mod.CONFIG.limitAutonomousEntityDegradation) {
 			return false;
@@ -136,21 +154,7 @@ public final class BlockDegradationUtil {
 		return getDegradationStage(blockId) >= 1;
 	}
 
-	private static boolean tryDegradeBlock(World world, BlockPos position, Identifier blockId) {
-		var random = world.getRandom();
-		var degradedBlockId = BlockStepConfig.getRandomDegradableBlockForBlockId(random, blockId);
-
-		if (degradedBlockId == null) {
-			return false;
-		}
-
-		var degradedBlock = Registries.BLOCK.get(degradedBlockId);
-		world.setBlockState(position, degradedBlock.getDefaultState());
-
-		return true;
-	}
-
-	private static int getRequiredNumberOfSteps(Identifier blockId) {
+	private static int getRequiredNumberOfStepsForDegradation(Identifier blockId) {
 		var baseResilience = Math.max(1, Mod.CONFIG.blockResilience);
 		var degradationStage = getDegradationStage(blockId);
 		var scalingFactor = Mod.CONFIG.blockResilienceScalingFactor > 0 ? Mod.CONFIG.blockResilienceScalingFactor : 1;
@@ -218,17 +222,6 @@ public final class BlockDegradationUtil {
 		}
 
 		return stageByBlockId;
-	}
-
-	// Logging
-
-	private static void logStep(Identifier blockId, BlockPos position, int numberOfSteps, int requiredNumberOfSteps) {
-		if (!Mod.CONFIG.enableLogging) {
-			return;
-		}
-
-		Mod.LOGGER.info("Block '{}' at {} has been stepped on {} time(s) (required to degradation: ~{}).", blockId.toShortTranslationKey(),
-				position, numberOfSteps, requiredNumberOfSteps);
 	}
 
 }
