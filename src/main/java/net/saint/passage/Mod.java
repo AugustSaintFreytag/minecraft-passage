@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.world.World;
 import net.saint.passage.data.block.EntityStepManager;
+import net.saint.passage.data.block.EntityWeightClassManager;
 import net.saint.passage.data.chunk.ChunkDataManager;
 import net.saint.passage.util.Profiler;
 
@@ -28,6 +29,7 @@ public class Mod implements ModInitializer {
 
 	public static ChunkDataManager CHUNK_DATA_MANAGER;
 	public static EntityStepManager ENTITY_STEP_MANAGER;
+	public static EntityWeightClassManager ENTITY_WEIGHT_CLASS_MANAGER;
 
 	// Init
 
@@ -55,6 +57,7 @@ public class Mod implements ModInitializer {
 			}
 
 			ENTITY_STEP_MANAGER = new EntityStepManager();
+			ENTITY_WEIGHT_CLASS_MANAGER = new EntityWeightClassManager();
 		});
 
 		ServerTickEvents.END_WORLD_TICK.register(world -> {
