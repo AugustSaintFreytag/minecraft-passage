@@ -28,20 +28,20 @@ public class ModConfig implements ConfigData {
 	public boolean limitAutonomousEntityDegradation = false;
 
 	@Category("blocks")
-	@Comment("The rough number of steps required to degrade a block into its next stage. (Default: 10)")
-	public int blockResilience = 10;
+	@Comment("The rough number of steps required to degrade a block into its next stage. (Default: 16)")
+	public int blockResilience = 16;
 
 	@Category("blocks")
 	@Comment("The chance for a block that would have counted a step to resist instead. (Default: 0.15)")
 	public double blockResistanceChance = 0.15;
 
 	@Category("blocks")
-	@Comment("The factor for increased resilience of subsequent stages of degradation. (Default: 4)")
-	public double blockResilienceScalingFactor = 2.5;
+	@Comment("The factor for increased resilience of subsequent stages of degradation. (Default: 5)")
+	public double blockResilienceScalingFactor = 5;
 
 	@Category("blocks")
-	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.2)")
-	public double blockMudChance = 0.2;
+	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.1)")
+	public double blockMudChance = 0.1;
 
 	@Category("blocks")
 	@Comment("The number of steps a block can additionally resist when raked with a hoe. (Default: 512)")
@@ -72,8 +72,8 @@ public class ModConfig implements ConfigData {
 	// Decay
 
 	@Category("decay")
-	@Comment("The time in ticks after which step counts in a chunk will decay. (Default: 168000 / 7 days)")
-	public long chunkStepDecay = 168_000L;
+	@Comment("The time in ticks after which step counts in a chunk will decay. (Default: 720000 / 30 days)")
+	public long chunkStepDecay = 720_000L;
 
 	@Category("decay")
 	@Comment("The factor by which step counts in a chunk will be removed each decay interval. (Default: 0.25)")
