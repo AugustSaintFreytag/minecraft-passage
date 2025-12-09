@@ -87,13 +87,13 @@ public class ChunkDataManager extends PersistentState {
 		return chunkData.getNumberOfSteps(blockPos);
 	}
 
-	public int incrementNumberOfSteps(BlockPos blockPos, long currentTick) {
+	public int addNumberOfSteps(BlockPos blockPos, int numberOfSteps, long currentTick) {
 		var chunkData = getOrCreateChunkData(new ChunkPos(blockPos));
-		var numberOfSteps = chunkData.incrementNumberOfSteps(blockPos, currentTick);
+		var totalNumberOfSteps = chunkData.addNumberOfSteps(blockPos, numberOfSteps, currentTick);
 
 		markDirty();
 
-		return numberOfSteps;
+		return totalNumberOfSteps;
 	}
 
 	public void resetNumberOfSteps(BlockPos blockPos) {

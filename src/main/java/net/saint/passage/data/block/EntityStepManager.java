@@ -45,7 +45,7 @@ public final class EntityStepManager {
 			return Mod.CONFIG.degradeBlocksForPlayers;
 		}
 
-		return Mod.CONFIG.degradeBlocksForNonPlayerEntities;
+		return Mod.CONFIG.degradeBlocksForAutonomousEntities;
 	}
 
 	public boolean isEntityStationary(World world, BlockPos position, Entity entity, long currentTick) {

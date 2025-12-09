@@ -32,14 +32,14 @@ public final class ChunkData {
 		return numberOfStepsByBlockPos.get(blockPos.asLong());
 	}
 
-	public int incrementNumberOfSteps(BlockPos blockPos, long currentTick) {
+	public int addNumberOfSteps(BlockPos blockPos, int numberOfSteps, long currentTick) {
 		var blockPosLong = blockPos.asLong();
-		var numberOfSteps = numberOfStepsByBlockPos.get(blockPosLong) + 1;
+		var totalNumberOfSteps = numberOfStepsByBlockPos.get(blockPosLong) + numberOfSteps;
 
-		numberOfStepsByBlockPos.put(blockPosLong, numberOfSteps);
+		numberOfStepsByBlockPos.put(blockPosLong, totalNumberOfSteps);
 		lastStepTick = currentTick;
 
-		return numberOfSteps;
+		return totalNumberOfSteps;
 	}
 
 	public void resetNumberOfSteps(BlockPos blockPos) {

@@ -8,6 +8,7 @@ import java.util.Map;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -51,12 +52,13 @@ public final class BlockDegradationUtil {
 			return;
 		}
 
-		var numberOfSteps = Mod.CHUNK_DATA_MANAGER.incrementNumberOfSteps(position, currentTick);
+		var numberOfAddedSteps = numberOfStepsForEntity(entity);
+		var totalNumberOfSteps = Mod.CHUNK_DATA_MANAGER.addNumberOfSteps(position, numberOfAddedSteps, currentTick);
 		var requiredNumberOfSteps = getRequiredNumberOfSteps(blockId);
 
-		logStep(blockId, position, numberOfSteps, requiredNumberOfSteps);
+		logStep(blockId, position, totalNumberOfSteps, requiredNumberOfSteps);
 
-		if (numberOfSteps < requiredNumberOfSteps) {
+		if (totalNumberOfSteps < requiredNumberOfSteps) {
 			return;
 		}
 
@@ -85,8 +87,45 @@ public final class BlockDegradationUtil {
 		return Mod.CHUNK_DATA_MANAGER != null;
 	}
 
+	public static int numberOfStepsForEntity(Entity entity) {
+		if (entity.isPlayer()) {
+			return Mod.CONFIG.playerStepFactor;
+		}
+
+		if (isEntityControlledByPlayer(entity)) {
+			if (entity instanceof BoatEntity) {
+				return Mod.CONFIG.mountedEntityStepFactor * 4;
+			}
+
+			return Mod.CONFIG.mountedEntityStepFactor;
+		}
+
+		var weightClass = Mod.ENTITY_WEIGHT_CLASS_MANAGER.getWeightClassForEntity(entity);
+
+		switch (weightClass) {
+		case HEAVY -> {
+			return Mod.CONFIG.autonomousHeavyEntityStepFactor;
+		}
+		case LIGHT -> {
+			return Mod.CONFIG.autonomousLightEntityStepFactor;
+		}
+		}
+
+		return 0;
+	}
+
+	private static boolean isEntityControlledByPlayer(Entity entity) {
+		for (var passenger : entity.getPassengerList()) {
+			if (passenger.isPlayer()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static boolean isBlockAtMaxDegradationForEntity(Entity entity, Identifier blockId) {
-		if (!Mod.CONFIG.limitNonPlayerEntityDegradation) {
+		if (!Mod.CONFIG.limitAutonomousEntityDegradation) {
 			return false;
 		}
 
