@@ -4,9 +4,11 @@
 	"compatibilityLevel": "JAVA_17",
 	"plugin": "net.saint.passage.ModMixinPlugin",
 	"mixins": [
+		"BlockMixin",
+		"HoeMixin",
+		"ServerPlayerInteractionManagerMixin"
 	],
-	"client": [
-	],
+	"client": [],
 	"injectors": {
 		"defaultRequire": 1
 	}
