@@ -5,7 +5,8 @@
 	"plugin": "net.saint.passage.ModMixinPlugin",
 	"mixins": [
 		"BlockMixin",
-		"HoeMixin"
+		"HoeMixin",
+		"ServerPlayerInteractionManagerMixin"
 	],
 	"client": [],
 	"injectors": {
