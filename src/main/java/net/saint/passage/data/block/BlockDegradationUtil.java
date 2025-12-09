@@ -7,7 +7,6 @@ import java.util.Map;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -144,7 +143,7 @@ public final class BlockDegradationUtil {
 			return false;
 		}
 
-		if (entity instanceof PlayerEntity) {
+		if (entity.isPlayer()) {
 			return false;
 		}
 
@@ -154,7 +153,7 @@ public final class BlockDegradationUtil {
 	private static int getRequiredNumberOfStepsForDegradation(Identifier blockId) {
 		var baseResilience = Math.max(1, Mod.CONFIG.blockResilience);
 		var degradationStage = getDegradationStage(blockId);
-		var scalingFactor = Mod.CONFIG.blockResilienceScalingFactor > 0 ? Mod.CONFIG.blockResilienceScalingFactor : 1;
+		var scalingFactor = Mod.CONFIG.blockResilienceScalingFactor;
 		var scaledResilience = baseResilience * Math.pow(scalingFactor, degradationStage);
 
 		return (int) Math.ceil(scaledResilience);
@@ -172,8 +171,8 @@ public final class BlockDegradationUtil {
 
 	private static Map<Identifier, Integer> buildDegradationStageByBlockId() {
 		var stageByBlockId = new HashMap<Identifier, Integer>();
-		var queue = new ArrayDeque<Identifier>();
 		var targetedBlockIds = new HashSet<Identifier>();
+		var queue = new ArrayDeque<Identifier>();
 
 		for (var degradationStep : BlockDegradationConfig.blockDegradationStepById.values()) {
 			targetedBlockIds.addAll(degradationStep.degradedBlocks());

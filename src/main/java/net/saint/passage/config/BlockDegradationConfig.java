@@ -7,6 +7,7 @@ import java.util.Set;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome.Precipitation;
 import net.saint.passage.Mod;
 import net.saint.passage.util.RandomCollectionUtil;
 
