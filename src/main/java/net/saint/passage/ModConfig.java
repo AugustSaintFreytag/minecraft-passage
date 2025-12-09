@@ -32,12 +32,16 @@ public class ModConfig implements ConfigData {
 	public int blockResilience = 10;
 
 	@Category("blocks")
-	@Comment("The chance for a block that would have degraded to resist degradation instead. (Default: 0.1)")
-	public double blockResilienceJitter = 0.1;
+	@Comment("The chance for a block that would have counted a step to resist instead. (Default: 0.15)")
+	public double blockResistanceChance = 0.15;
 
 	@Category("blocks")
 	@Comment("The factor for increased resilience of subsequent stages of degradation. (Default: 4)")
 	public double blockResilienceScalingFactor = 2.5;
+
+	@Category("blocks")
+	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.2)")
+	public double blockMudChance = 0.2;
 
 	// Entities
 

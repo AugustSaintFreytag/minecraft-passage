@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.saint.passage.Mod;
-import net.saint.passage.config.BlockStepConfig;
+import net.saint.passage.config.BlockDegradationConfig;
 
 public final class BlockDegradationUtil {
 
@@ -38,13 +38,18 @@ public final class BlockDegradationUtil {
 
 		var blockId = Registries.BLOCK.getId(blockState.getBlock());
 
-		if (!BlockStepConfig.isBlockDegradable(blockId)) {
+		if (!BlockDegradationConfig.isBlockDegradable(blockId)) {
 			return;
 		}
 
+		var random = world.getRandom();
 		var currentTick = world.getTime();
 
 		if (!Mod.ENTITY_STEP_MANAGER.shouldCountStepForEntity(world, position, entity, currentTick)) {
+			return;
+		}
+
+		if (shouldBlockResistStep(random)) {
 			return;
 		}
 
@@ -57,13 +62,6 @@ public final class BlockDegradationUtil {
 		var requiredNumberOfSteps = getRequiredNumberOfStepsForDegradation(blockId);
 
 		if (totalNumberOfSteps < requiredNumberOfSteps) {
-			return;
-		}
-
-		var random = world.getRandom();
-
-		if (shouldBlockResistDegradation(random)) {
-			Mod.CHUNK_DATA_MANAGER.resetNumberOfSteps(position);
 			return;
 		}
 
@@ -88,8 +86,7 @@ public final class BlockDegradationUtil {
 	// Degradation
 
 	private static boolean tryDegradeBlock(World world, BlockPos position, Identifier blockId) {
-		var random = world.getRandom();
-		var degradedBlockId = BlockStepConfig.getRandomDegradableBlockForBlockId(random, blockId);
+		var degradedBlockId = BlockDegradationConfig.getNextRandomDegradedBlockForBlockId(world, position, blockId);
 
 		if (degradedBlockId == null) {
 			return false;
@@ -163,12 +160,12 @@ public final class BlockDegradationUtil {
 		return (int) Math.ceil(scaledResilience);
 	}
 
-	private static boolean shouldBlockResistDegradation(Random random) {
-		if (Mod.CONFIG.blockResilienceJitter <= 0) {
+	private static boolean shouldBlockResistStep(Random random) {
+		if (Mod.CONFIG.blockResistanceChance <= 0) {
 			return false;
 		}
 
-		return random.nextDouble() < Mod.CONFIG.blockResilienceJitter;
+		return random.nextDouble() < Mod.CONFIG.blockResistanceChance;
 	}
 
 	// Prebuilding
@@ -178,11 +175,11 @@ public final class BlockDegradationUtil {
 		var queue = new ArrayDeque<Identifier>();
 		var targetedBlockIds = new HashSet<Identifier>();
 
-		for (var degradationStep : BlockStepConfig.blockDegradationStepById.values()) {
+		for (var degradationStep : BlockDegradationConfig.blockDegradationStepById.values()) {
 			targetedBlockIds.addAll(degradationStep.degradedBlocks());
 		}
 
-		for (var blockId : BlockStepConfig.blockDegradationStepById.keySet()) {
+		for (var blockId : BlockDegradationConfig.blockDegradationStepById.keySet()) {
 			if (targetedBlockIds.contains(blockId)) {
 				continue;
 			}
@@ -192,7 +189,7 @@ public final class BlockDegradationUtil {
 		}
 
 		if (queue.isEmpty()) {
-			for (var blockId : BlockStepConfig.blockDegradationStepById.keySet()) {
+			for (var blockId : BlockDegradationConfig.blockDegradationStepById.keySet()) {
 				stageByBlockId.put(blockId, 0);
 				queue.add(blockId);
 			}
@@ -201,14 +198,14 @@ public final class BlockDegradationUtil {
 		while (!queue.isEmpty()) {
 			var blockId = queue.poll();
 			var stage = stageByBlockId.get(blockId);
-			var degradationStep = BlockStepConfig.blockDegradationStepById.get(blockId);
+			var degradationStep = BlockDegradationConfig.blockDegradationStepById.get(blockId);
 
 			if (degradationStep == null) {
 				continue;
 			}
 
 			for (var degradedBlockId : degradationStep.degradedBlocks()) {
-				if (!BlockStepConfig.isBlockDegradable(degradedBlockId)) {
+				if (!BlockDegradationConfig.isBlockDegradable(degradedBlockId)) {
 					continue;
 				}
 

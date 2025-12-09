@@ -5,14 +5,16 @@ import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.saint.passage.Mod;
 import net.saint.passage.util.RandomCollectionUtil;
 
 // Grass -> Dirt/Coarse Dirt/Rooted Dirt
 // Dirt -> Coarse Dirt/Rooted Dirt/Podzol
 // Coarse Dirt/Rooted Dirt -> Podzol/Path
 
-public final class BlockStepConfig {
+public final class BlockDegradationConfig {
 
 	// Library
 
@@ -66,11 +68,18 @@ public final class BlockStepConfig {
 
 	// Selection
 
-	public static Identifier getRandomDegradableBlockForBlockId(Random random, Identifier blockId) {
+	public static Identifier getNextRandomDegradedBlockForBlockId(World world, BlockPos position, Identifier blockId) {
 		var degradationStep = blockDegradationStepById.get(blockId);
 
 		if (degradationStep == null) {
 			return null;
+		}
+
+		var random = world.getRandom();
+
+		if (Mod.CONFIG.blockMudChance > 0 && world.hasRain(position) && random.nextDouble() < Mod.CONFIG.blockMudChance) {
+			return BlockIds.MUD;
+
 		}
 
 		return RandomCollectionUtil.getRandomItemFromSetAndWeights(random, degradationStep.degradedBlocks(), blockWeightById);

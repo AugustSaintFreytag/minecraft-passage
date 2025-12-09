@@ -10,5 +10,6 @@ public final class BlockIds {
 	public static Identifier ROOTED_DIRT = new Identifier("minecraft", "rooted_dirt");
 	public static Identifier PODZOL = new Identifier("minecraft", "podzol");
 	public static Identifier DIRT_PATH = new Identifier("minecraft", "dirt_path");
+	public static Identifier MUD = new Identifier("minecraft", "mud");
 
 }
