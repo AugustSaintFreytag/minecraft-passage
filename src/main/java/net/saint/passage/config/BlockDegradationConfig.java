@@ -76,8 +76,10 @@ public final class BlockDegradationConfig {
 		}
 
 		var random = world.getRandom();
+		var biome = world.getBiome(position).value();
+		var isRaining = biome.getPrecipitation(position) == Precipitation.RAIN;
 
-		if (Mod.CONFIG.blockMudChance > 0 && world.hasRain(position) && random.nextDouble() < Mod.CONFIG.blockMudChance) {
+		if (isRaining && Mod.CONFIG.blockMudChance > 0 && random.nextDouble() < Mod.CONFIG.blockMudChance) {
 			return BlockIds.MUD;
 
 		}
