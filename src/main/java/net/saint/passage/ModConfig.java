@@ -43,6 +43,10 @@ public class ModConfig implements ConfigData {
 	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.2)")
 	public double blockMudChance = 0.2;
 
+	@Category("blocks")
+	@Comment("The number of steps a block can additionally resist when raked with a hoe. (Default: 512)")
+	public int blockRakeStepRemovalAmount = 512;
+
 	// Entities
 
 	@Category("entities")

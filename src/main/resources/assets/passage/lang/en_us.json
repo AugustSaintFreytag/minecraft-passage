@@ -20,6 +20,8 @@
 	"text.autoconfig.passage.option.blockResilienceScalingFactor.tooltip": "The factor for increased resilience of subsequent stages of degradation.",
 	"text.autoconfig.passage.option.blockMudChance": "Block Mud Chance",
 	"text.autoconfig.passage.option.blockMudChance.tooltip": "The chance for a block to degrade into mud instead of its normal degraded form when it's raining.",
+	"text.autoconfig.passage.option.blockRakeStepRemovalAmount": "Block Rake Step Removal Amount",
+	"text.autoconfig.passage.option.blockRakeStepRemovalAmount.tooltip": "The number of steps a block can additionally resist when raked with a hoe.",
 	"text.autoconfig.passage.option.stationaryStepCooldown": "Stationary Step Cooldown",
 	"text.autoconfig.passage.option.stationaryStepCooldown.tooltip": "Ticks before a stationary entity can contribute another step on the same block. Set to 0 to disable pacing.",
 	"text.autoconfig.passage.option.playerStepFactor": "Player Step Factor",

@@ -49,7 +49,7 @@ public final class BlockDegradationUtil {
 			return;
 		}
 
-		if (shouldBlockResistStep(random)) {
+		if (shouldBlockRandomlyResistStep(random)) {
 			return;
 		}
 
@@ -160,7 +160,7 @@ public final class BlockDegradationUtil {
 		return (int) Math.ceil(scaledResilience);
 	}
 
-	private static boolean shouldBlockResistStep(Random random) {
+	private static boolean shouldBlockRandomlyResistStep(Random random) {
 		if (Mod.CONFIG.blockResistanceChance <= 0) {
 			return false;
 		}
