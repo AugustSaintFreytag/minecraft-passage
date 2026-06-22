@@ -40,8 +40,8 @@ public class ModConfig implements ConfigData {
 	public double blockResilienceScalingFactor = 5;
 
 	@Category("blocks")
-	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.1)")
-	public double blockMudChance = 0.1;
+	@Comment("The chance for a block to degrade into mud instead of its normal degraded form when it's raining. (Default: 0.15)")
+	public double blockMudChance = 0.15;
 
 	@Category("blocks")
 	@Comment("The number of steps a block can additionally resist when raked with a hoe. (Default: 512)")
